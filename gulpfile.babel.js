@@ -9,7 +9,7 @@ const pump = require('pump');
 const jsonminify = require('gulp-json-minify');
 const cleanCSS = require('gulp-clean-css');
 const imagemin = require('gulp-imagemin');
-// const del = require('del');
+const del = require('del');
 const replace = require('gulp-replace');
 const uglyfly = require('gulp-uglifyes');
 const $ = require('gulp-load-plugins')();
@@ -193,13 +193,13 @@ gulp.task('watch', ['clean'], function (cb) {
 // 清理编译目录
 gulp.task('clean', function (cb) {
     _log(colors.white('开始清理 ' + conf.prodPath + ' 目录...'));
-    cb();
+    // cb();
 /*    gulp.src([conf.devPath,app.prdPath])
         .pipe($.clean());*/
-/*    del([conf.prodPath] + '/!**!/!*').then(function (paths) {
+    del([conf.prodPath] + '/**/*').then(function (paths) {
         _log(colors.white('清理完毕, 共清理 ' + colors.red(paths.length) + ' 个文件和目录。'));
         cb();
-    });*/
+    });
 });
 
 // 优化js
