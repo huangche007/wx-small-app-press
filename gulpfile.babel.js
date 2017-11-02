@@ -19,7 +19,7 @@ var postcss = require('gulp-postcss');
 var autoprefixer = require('autoprefixer');
 var cssnext = require('cssnext');
 var precss = require('precss');
-// 配置项
+// 配置项(套用可以压缩css/wxss、js、json、html/wxml)
 const conf = {
     // 开发目录
     devPath: 'src',
@@ -57,23 +57,20 @@ const _log = function (msg) {
  */
 const _optJS = function (filePath, cb) {
     const options = {};
-    _log(colors.white('对 js 文件进行优化...'));
+    _log(colors.green('对 js 文件进行优化...'));
     pump([
         gulp.src(filePath, {base: conf.devPath}),
-        // uglyfly(),
         uglyfly({
             mangle: false,
-            ecma: 6
+            ie8:true,//压缩后的代码支持ie8
+            ecma: 8,//支持的javascript的最高版本(兼容es5,6,7,8)
+            compress:{}//压缩的级别
         }),
         sourcemaps.init(),
         babel(),
         sourcemaps.write("."),
         gulp.dest(conf.prodPath)
     ], cb);
-    // gulp.src(filePath, {base: conf.devPath})
-    //   .pipe(uglyfly())
-    //   .pipe(gulp.dest(conf.prodPath));
-    // cb();
 };
 
 /**
@@ -85,7 +82,7 @@ const _optWXSS = function (filePath, cb) {
         debug: false
     };
     var processors = [autoprefixer, cssnext, precss];
-    _log(colors.white('对 wxss 文件进行优化...'));
+    _log(colors.green('对 wxss 文件进行优化...'));
     gulp.src(filePath, {base: conf.devPath})
         .pipe(cleanCSS(options, function (details) {
             if (options.debug) {
@@ -104,7 +101,7 @@ const _optWXSS = function (filePath, cb) {
  * @private
  */
 const _optJSON = function (filePath, cb) {
-    _log(colors.white('对 json 文件进行优化...'));
+    _log(colors.green('对 json 文件进行优化...'));
     gulp.src(filePath, {base: conf.devPath})
         .pipe(jsonminify())
         .pipe(gulp.dest(conf.prodPath));
@@ -117,7 +114,7 @@ const _optJSON = function (filePath, cb) {
  * @private
  */
 const _optWXML = function (filePath, cb) {
-    _log(colors.white('对 wxml 文件进行优化...'));
+    _log(colors.green('对 wxml 文件进行优化...'));
     gulp.src(filePath, {base: conf.devPath})
     // 删除换行符和tab缩进
         .pipe(replace(/\n+|\t+/g, ''))
@@ -138,7 +135,7 @@ const _optWXML = function (filePath, cb) {
  * @private
  */
 const _optImages = function (filePath, fileType) {
-    _log(colors.white('对 ' + fileType + ' 文件进行优化...'));
+    _log(colors.green('对 ' + fileType + ' 文件进行优化...'));
     gulp.src(filePath, {base: conf.devPath})
         .pipe(imagemin([
             imagemin.gifsicle(),
@@ -159,7 +156,7 @@ const _optImages = function (filePath, fileType) {
  * @param filePath
  */
 const _copyFiles = function (filePath, cb) {
-    _log(colors.white('将 ' + conf.devPath + ' 输出到 ' + conf.prodPath));
+    _log(colors.green('将 ' + conf.devPath + ' 输出到 ' + conf.prodPath));
     gulp.src(filePath, {base: conf.devPath})
         .pipe(gulp.dest(conf.prodPath));
     if (!!cb) {
@@ -232,10 +229,10 @@ gulp.task('images', ['clean'], function () {
 
 // 开始任务
 gulp.task('startProd', ['clean'], function () {
-    _log(colors.green('开始优化, 请稍候...'));
+    _log(colors.green('开始(压缩)优化, 请稍候...'));
 });
 
 // 编译任务
 gulp.task('prod', ['startProd', 'js', 'wxss', 'wxml', 'json', 'images'], function () {
-    _log(colors.green('优化完毕, 请查看 ' + conf.prodPath + ' 目录。'));
+    _log(colors.green('(压缩)优化完毕, 请查看 ' + conf.prodPath + ' 目录。'));
 });
